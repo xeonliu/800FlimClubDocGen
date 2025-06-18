@@ -28,49 +28,193 @@
             </span></p>
         <p class="MsoNormal">&nbsp;</p>
         <% if (movies && movies.length) { movies.forEach(function(movie, idx) { %>
-            <% if (movie.isSalon) { %>
-                <h1><%= movie.day %>沙龙</h1>
-                <h2>一、沙龙篇目电影基本信息：</h2>
-                <table class="MsoTableGrid" border="0" cellspacing="0" cellpadding="0" style="margin-left:-.25pt;border-collapse:collapse;border:none">
-                    <tr style="height:21.25pt">
-                        <td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">中文名</span></p></td>
-                        <td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.chinese %></span></p></td>
-                    </tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">外文名</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span lang=EN-US style="font-family:华文宋体"><%= movie.foreign %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">年份</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span lang=EN-US style="font-family:华文宋体"><%= movie.year %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">导演</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.director %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">编剧</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.writer %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">主演</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.actors %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">类型</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.genre %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">制片地区/国家</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.region %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">片长</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span lang=EN-US style="font-family:华文宋体"><%= movie.length %></span><span style="font-family:华文宋体">分钟</span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">豆瓣评分</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span lang=EN-US style="font-family:华文宋体"><%= movie.douban %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">剧情简介</span></p></td><td width=456 style="width:341.7pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.desc %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=104 style="width:78.25pt;border:none;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 2.85pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">豆瓣短评</span></p></td><td width=456 style="width:341.7pt;border:none;padding:0cm 5.4pt 0cm 2.85pt; height:21.25pt"><p class="MsoNormal" align="left" style="text-align:left;line-height:20.4pt; background:white"><span style="font-size:10.0pt;font-family:宋体;color:#494949"><%= movie.short %></span></p></td></tr>
-                </table>
-                <h2>二、沙龙导赏：</h2>
-                <p class="MsoNormal"><span>"<%= movie.salon_quote %>"</span></p>
-                <p class="MsoNormal"><span><%= movie.salon_intro1 %></span></p>
-                <p class="MsoNormal"><span><%= movie.salon_intro2 %></span></p>
-            <% } else { %>
-                <h1>放映篇目<%= idx+1 %>：<%= movie.day %></h1>
-                <table class="MsoTableGrid" border="0" cellspacing="0" cellpadding="0" style="margin-left:-.25pt;border-collapse:collapse;border:none">
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">中文名</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.chinese %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">外文名</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span lang=EN-US style="font-family:华文宋体"><%= movie.foreign %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">年份</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span lang=EN-US style="font-family:华文宋体"><%= movie.year %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">导演</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.director %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">编剧</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.writer %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">主演</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.actors %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">类型</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.genre %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">制片地区/国家</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.region %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">片长</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span lang=EN-US style="font-family:华文宋体"><%= movie.length %></span><span style="font-family:华文宋体">分钟</span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">豆瓣评分</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span lang=EN-US style="font-family:华文宋体"><%= movie.douban %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">剧情简介</span></p></td><td width=446 style="width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体"><%= movie.desc %></span></p></td></tr>
-                    <tr style="height:21.25pt"><td width=114 style="width:85.3pt;border:none;border-right:solid windowtext 1.0pt; padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt"><p class="MsoNormal" align="right" style="text-align:right"><span style="font-family:华文宋体">豆瓣短评</span></p></td><td width=446 style="width:334.6pt;border:none;padding:0cm 5.4pt 0cm 5.4pt; height:21.25pt"><p class="MsoNormal" align="left" style="text-align:left;line-height:20.4pt; background:white"><span style="font-size:10.0pt;font-family:宋体;color:#494949"><%= movie.short %></span></p></td></tr>
-                </table>
-                <p class="MsoNormal">&nbsp;</p>
-            <% } %>
-        <% }) } %>
+            <h1>影片<%= idx+1 %>信息</h1>
+            <table class=MsoTableGrid border=0 cellspacing=0 cellpadding=0
+                style='margin-left:-.25pt;border-collapse:collapse;border:none'>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span
+                                style='font-family:华文宋体'>中文名</span></p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>
+                                <%= movie.chinese %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span
+                                style='font-family:华文宋体'>外文名</span></p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span lang=EN-US
+                                style='font-family:华文宋体'>
+                                <%= movie.foreign %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>年份</span>
+                        </p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span lang=EN-US
+                                style='font-family:华文宋体'>
+                                <%= movie.year %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>导演</span>
+                        </p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>
+                                <%= movie.director %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>编剧</span>
+                        </p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>
+                                <%= movie.writer %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>主演</span>
+                        </p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>
+                                <%= movie.actors %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>类型</span>
+                        </p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>
+                                <%= movie.genre %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>制片地区<span
+                                    lang=EN-US>/</span>国家</span></p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>
+                                <%= movie.region %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>片长</span>
+                        </p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span lang=EN-US
+                                style='font-family:华文宋体'>
+                                <%= movie.length %>
+                            </span><span style='font-family:华文宋体'>分钟</span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span
+                                style='font-family:华文宋体'>豆瓣评分</span></p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span lang=EN-US
+                                style='font-family:华文宋体'>
+                                <%= movie.douban %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span
+                                style='font-family:华文宋体'>剧情简介</span></p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;border-bottom:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span style='font-family:华文宋体'>
+                                <%= movie.desc %>
+                            </span></p>
+                    </td>
+                </tr>
+                <tr style='height:21.25pt'>
+                    <td width=114 style='width:85.3pt;border:none;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:21.25pt'>
+                        <p class=MsoNormal align=right style='text-align:right'><span
+                                style='font-family:华文宋体'>豆瓣短评</span></p>
+                    </td>
+                    <td width=446 style='width:334.6pt;border:none;padding:0cm 5.4pt 0cm 5.4pt;
+  height:21.25pt'>
+                        <p class=MsoNormal align=left style='text-align:left;line-height:20.4pt;
+  background:white'><span lang=EN-US style='color:black'><a href="https://www.douban.com/people/leeshiuan/"><span
+                                        lang=EN-US style='font-size:10.0pt;font-family:宋体;color:#3377AA'><span
+                                            lang=EN-US>某人</span></span></a></span><span lang=EN-US style='font-size:10.0pt;font-family:"Helvetica",sans-serif;
+  color:#494949'>&nbsp;</span><span style='font-size:10.0pt;font-family:宋体;
+  color:#494949'>看过</span><span lang=EN-US style='font-size:10.0pt;font-family:
+  "Helvetica",sans-serif;color:#494949'>&nbsp;&nbsp;</span><span lang=EN-US
+                                style='font-size:10.0pt;font-family:"Helvetica",sans-serif;color:#AAAAAA'>2025-06-18
+                                12:00:00</span></p>
+                        <p class=MsoNormal align=left style='text-align:left;background:white'><span
+                                style='font-size:10.0pt;font-family:宋体;color:#494949'>
+                                <%= movie.short %>
+                            </span></p>
+                    </td>
+                </tr>
+            </table>
+            <p class="MsoNormal">&nbsp;</p>
+            <% }) } %>
     </div>
 </body>
 
