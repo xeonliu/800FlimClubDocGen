@@ -1,63 +1,34 @@
-import express from 'express';
-import * as docx from 'docx';
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const { Document, Packer, Paragraph, TextRun } = require('docx');
+const ejs = require('ejs');
+const bodyParser = require('body-parser');
 
 const app = express();
-const port = 3000;
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-// 解析表单数据
-app.use(express.urlencoded({ extended: true }));
-
-// 首页路由
+// 渲染表单页面
 app.get('/', (req, res) => {
-  res.send(`
-    <form action="/generate" method="post">
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name"><br><br>
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email"><br><br>
-      <input type="submit" value="Generate Word">
-    </form>
-  `);
+    res.render('form');
 });
 
-// 生成 Word 文件的路由
+// 处理表单提交，生成 output.html 和 Word
 app.post('/generate', async (req, res) => {
-  const { name, email } = req.body;
-  console.log(name, email);
+    const data = req.body;
+    // 生成 HTML
+    const html = await ejs.renderFile(path.join(__dirname, 'views', 'template.ejs'), data, {async: true});
+    fs.writeFileSync('output.html', html, 'utf8');
 
-// 创建一个新的 Word 文档
-  const doc = new docx.Document({
-    creator: "Your Name",
-    title: "Document Title",
-    description: "Document description",
-    sections: []
-  });
-
-  // 添加段落
-  doc.addSection({
-    children: [
-      new docx.Paragraph({
-        children: [
-          new docx.TextRun(`Name: ${name}`),
-        ],
-      }),
-      new docx.Paragraph({
-        children: [
-          new docx.TextRun(`Email: ${email}`),
-        ],
-      }),
-    ],
-  });
-
-  // 将文档保存到内存中
-  const buffer = await docx.Packer.toBuffer(doc);
-
-  // 设置响应头，提示浏览器下载文件
-  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-  res.setHeader('Content-Disposition', 'attachment; filename="output.docx"');
-  res.end(buffer);
+    res.send('<h2>生成成功！</h2><a href="/output.html" target="_blank">下载HTML</a>');
 });
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+// 提供 output.html 和 output.docx 下载
+app.use(express.static('.'));
+
+app.listen(3000, () => {
+    console.log('Server is running at http://localhost:3000');
 });

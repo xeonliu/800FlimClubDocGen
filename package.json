@@ -1,11 +1,11 @@
 {
   "name": "800_Film_Club_Word_Generator",
-  "type": "module",
   "version": "1.0.0",
   "main": "app.js",
   "license": "MIT",
   "dependencies": {
     "docx": "^9.5.1",
+    "ejs": "^3.1.10",
     "express": "^5.1.0"
   },
   "devDependencies": {
