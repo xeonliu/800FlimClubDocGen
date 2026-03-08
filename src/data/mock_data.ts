@@ -8,7 +8,7 @@ export const mockDocumentData: DocumentData = {
 
   info: {
     week: "9",
-    speaker: "刘世琪",
+    speaker: "策展人",
     theme: "战争迷雾",
     themeDesc: "从不同切入点描绘的各种形式的战争",
   },

@@ -32,10 +32,26 @@ interface Props {
 export default function DocumentPreview({ data }: Props) {
     const { showInstructions = true, info, schedule, themeText, salonQuote, salonReview } = data;
 
-    // 沙龙篇目（isSalon === true）
-    const salonMovie = schedule.movies.find((m) => m.isSalon);
+    // 获取所有沙龙篇目（isSalon === true）
+    const salonMovies = schedule.movies.filter((m) => m.isSalon);
     // 周末影院篇目（非沙龙）
     const weekendMovies = schedule.movies.filter((m) => !m.isSalon);
+
+    // 根据日期获取星期（周四/周五）
+    const getSalonTitle = (movie: any) => {
+        const dateStr = movie.showDate || "";
+        
+        if (dateStr.includes("周一")) return "周一沙龙";
+        if (dateStr.includes("周二")) return "周二沙龙";
+        if (dateStr.includes("周三")) return "周三沙龙";
+        if (dateStr.includes("周四")) return "周四沙龙";
+        if (dateStr.includes("周五")) return "周五沙龙";
+        if (dateStr.includes("周六")) return "周六沙龙";
+        if (dateStr.includes("周日")) return "周日沙龙";
+        
+        // 如果没有星期信息，回退到默认
+        return "周五沙龙"; 
+    };
 
     return (
         <div className="doc-viewer">
@@ -54,24 +70,24 @@ export default function DocumentPreview({ data }: Props) {
                 <ThemeModule themeText={themeText} />
             </div>
 
-            {/* ── 第 2 页 ─────────────────── */}
-            <div className="doc-page">
-                {salonMovie && (
+            {/* ── 沙龙模块（可能有多个） ─────────────────── */}
+            {salonMovies.map((movie, index) => (
+                <div className="doc-page" key={`salon-${index}`}>
                     <SalonModule
-                        movie={salonMovie}
-                        quote={salonQuote}
-                        review={salonReview}
+                        movie={movie}
+                        title={getSalonTitle(movie)}
+                        quote={movie.salonQuote || ""}
+                        review={movie.salonReview || []}
                     />
-                )}
+                </div>
+            ))}
 
-                <p className="MsoNormal">
-                    <span style={{ fontFamily: "华文宋体" }}>&nbsp;</span>
-                </p>
-
-                {weekendMovies.length > 0 && (
+            {/* ── 周末影院 ─────────────────── */}
+            {weekendMovies.length > 0 && (
+                <div className="doc-page">
                     <WeekendCinemaModule movies={weekendMovies} />
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

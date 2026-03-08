@@ -36,4 +36,6 @@ export interface MovieWithSchedule extends Movie {
   showDate: string;
   startTime: string;
   endTime: string;
+  salonQuote?: string; // 沙龙引言
+  salonReview?: string[]; // 沙龙导赏段落
 }

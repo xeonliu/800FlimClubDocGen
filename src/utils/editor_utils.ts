@@ -25,6 +25,8 @@ function movieWithScheduleToEditor(m: MovieWithSchedule): EditorMovieData {
     showDate: parseChineseDate(m.showDate),
     startTime: m.startTime,
     endTime: m.endTime,
+    salonQuote: m.salonQuote || "",
+    salonReview: m.salonReview ? [...m.salonReview] : [""],
   };
 }
 
@@ -49,6 +51,8 @@ function editorMovieToDocument(m: EditorMovieData): MovieWithSchedule {
     showDate: m.showDate ? formatChineseDate(m.showDate) : "",
     startTime: m.startTime,
     endTime: m.endTime,
+    salonQuote: m.salonQuote || "",
+    salonReview: m.salonReview ? [...m.salonReview] : [""],
   };
 }
 

@@ -190,6 +190,57 @@ function MovieEditor({
         />
       </div>
 
+      {/* 沙龙专属字段：引言与导赏 */}
+      {movie.isSalon && (
+        <div className="salon-editor-fields">
+          <div className="editor-field editor-field-full">
+            <label className="editor-label">沙龙引言</label>
+            <input
+              className="editor-input"
+              type="text"
+              placeholder="一句电影中的台词..."
+              value={movie.salonQuote || ""}
+              onChange={(e) => set("salonQuote", e.target.value)}
+            />
+          </div>
+          <div className="editor-field editor-field-full">
+            <label className="editor-label">沙龙导赏正文</label>
+            {(movie.salonReview || [""]).map((text, idx) => (
+              <div key={idx} className="salon-review-row" style={{ display: "flex", gap: "4px", marginBottom: "4px" }}>
+                <textarea
+                  className="editor-textarea"
+                  style={{ flex: 1 }}
+                  placeholder={`第 ${idx + 1} 段导赏文字...`}
+                  rows={3}
+                  value={text}
+                  onChange={(e) => {
+                    const next = [...(movie.salonReview || [""])];
+                    next[idx] = e.target.value;
+                    set("salonReview", next);
+                  }}
+                />
+                <button
+                  className="btn-icon btn-danger"
+                  onClick={() => {
+                    const next = (movie.salonReview || [""]).filter((_, i) => i !== idx);
+                    set("salonReview", next.length ? next : [""]);
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <button
+              className="btn-add-item"
+              style={{ marginTop: "4px" }}
+              onClick={() => set("salonReview", [...(movie.salonReview || [""]), ""])}
+            >
+              + 添加导赏段落
+            </button>
+          </div>
+        </div>
+      )}
+
       {importModalOpen && (
         <MovieImportModal
           onImport={handleImport}
@@ -387,61 +438,11 @@ export default function EditorPanel({
               <button
                 className="btn-add btn-add-salon"
                 onClick={() => addMovie(true)}
-                title="添加一部周五沙龙篇目"
+                title="添加一部沙龙篇目"
               >
                 + 沙龙篇目
               </button>
             </div>
-          </Section>
-
-          {/* ─── 沙龙导赏 ─── */}
-          <Section title="🎭 沙龙导赏">
-            <p className="editor-hint">
-              仅对标记为"沙龙"的影片显示。
-            </p>
-            <div className="editor-field editor-field-full">
-              <label className="editor-label" title="沙龙篇目的居中引言，可含电影名">
-                居中引言
-              </label>
-              <textarea
-                className="editor-textarea"
-                placeholder="引言内容，如：「……」——《电影名》"
-                rows={2}
-                value={data.salonQuote}
-                onChange={(e) =>
-                  onChange({ ...data, salonQuote: e.target.value })
-                }
-              />
-            </div>
-            <label className="editor-label">
-              导赏段落（可多段）
-            </label>
-            {data.salonReview.map((para, i) => (
-              <div key={i} className="review-para-row">
-                <textarea
-                  className="editor-textarea"
-                  placeholder={`第 ${i + 1} 段导赏文字`}
-                  rows={4}
-                  value={para}
-                  onChange={(e) => updateSalonReview(i, e.target.value)}
-                />
-                <button
-                  className="btn-icon btn-danger"
-                  onClick={() => removeSalonReviewParagraph(i)}
-                  title="删除此段"
-                  aria-label="删除此段"
-                  disabled={data.salonReview.length <= 1}
-                >
-                  🗑
-                </button>
-              </div>
-            ))}
-            <button
-              className="btn-add"
-              onClick={addSalonReviewParagraph}
-            >
-              + 添加段落
-            </button>
           </Section>
         </div>
       )}

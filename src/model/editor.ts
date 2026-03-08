@@ -22,6 +22,10 @@ export interface EditorMovieData {
   showDate: Date | null;  // 放映日期（东八区）
   startTime: string;      // 开始时间，格式 "HH:MM"
   endTime: string;        // 结束时间，格式 "HH:MM"
+
+  // 沙龙模块特定字段
+  salonQuote?: string;    // 沙龙引言
+  salonReview?: string[]; // 沙龙导赏段落
 }
 
 /**
