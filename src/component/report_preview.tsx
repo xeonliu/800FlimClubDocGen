@@ -2,6 +2,7 @@ import React, { Fragment } from "react";
 import type { DocumentData } from "../model/document";
 import type { MovieWithSchedule } from "../model/movie";
 import "../styles/document.css";
+import { formatChineseDateDisplay } from "../utils/date_format";
 
 interface Props {
     data: DocumentData;
@@ -166,7 +167,7 @@ export default function ReportPreview({ data }: Props) {
                         {schedule.movies.map((movie) => (
                             <p className="MsoNormal" key={movie.chinese}>
                                 <span style={movie.isSalon ? { fontWeight: "bold" } : undefined}>
-                                    {movie.showDate}&emsp;{movie.startTime}-{movie.endTime}&emsp;
+                                    {formatChineseDateDisplay(movie.showDate)}&emsp;{movie.startTime}-{movie.endTime}&emsp;
                                     《{movie.chinese}》
                                 </span>
                             </p>

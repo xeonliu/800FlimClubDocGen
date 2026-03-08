@@ -1,5 +1,6 @@
 import type { DocumentData } from "../model/document";
 import "../styles/document.css";
+import { isoDateToWeekday } from "../utils/date_format";
 
 import InstructionsModule from "./instructions_module";
 import BasicInfoModule from "./basic_info_module";
@@ -37,20 +38,10 @@ export default function DocumentPreview({ data }: Props) {
     // 周末影院篇目（非沙龙）
     const weekendMovies = schedule.movies.filter((m) => !m.isSalon);
 
-    // 根据日期获取星期（周四/周五）
-    const getSalonTitle = (movie: any) => {
-        const dateStr = movie.showDate || "";
-        
-        if (dateStr.includes("周一")) return "周一沙龙";
-        if (dateStr.includes("周二")) return "周二沙龙";
-        if (dateStr.includes("周三")) return "周三沙龙";
-        if (dateStr.includes("周四")) return "周四沙龙";
-        if (dateStr.includes("周五")) return "周五沙龙";
-        if (dateStr.includes("周六")) return "周六沙龙";
-        if (dateStr.includes("周日")) return "周日沙龙";
-        
-        // 如果没有星期信息，回退到默认
-        return "周五沙龙"; 
+    // 根据 ISO 日期字符串获取星期标题（如"周四沙龙"）
+    const getSalonTitle = (movie: { showDate: string }) => {
+        const weekday = isoDateToWeekday(movie.showDate);
+        return weekday ? `${weekday}沙龙` : "周五沙龙";
     };
 
     return (

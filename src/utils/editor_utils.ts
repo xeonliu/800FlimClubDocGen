@@ -2,7 +2,7 @@ import type { DocumentData } from "../model/document";
 import type { EditorFormData, EditorMovieData } from "../model/editor";
 import type { MovieWithSchedule } from "../model/movie";
 import { mockDocumentData } from "../data/mock_data";
-import { parseChineseDate, formatChineseDate } from "./date_format";
+import { dateToIsoString } from "./date_format";
 
 /**
  * 将 MovieWithSchedule（文档模型）转换为 EditorMovieData（编辑器状态）
@@ -22,7 +22,7 @@ function movieWithScheduleToEditor(m: MovieWithSchedule): EditorMovieData {
     desc: m.desc,
     short: m.short,
     isSalon: m.isSalon,
-    showDate: parseChineseDate(m.showDate),
+    showDate: m.showDate ? new Date(m.showDate) : null,
     startTime: m.startTime,
     endTime: m.endTime,
     salonQuote: m.salonQuote || "",
@@ -51,7 +51,7 @@ function editorMovieToDocument(m: EditorMovieData): MovieWithSchedule {
     desc: m.desc,
     short: m.short,
     isSalon: m.isSalon,
-    showDate: m.showDate ? formatChineseDate(m.showDate) : "",
+    showDate: m.showDate ? dateToIsoString(m.showDate) : "",
     startTime: m.startTime,
     endTime: m.endTime,
     salonQuote: m.salonQuote || "",

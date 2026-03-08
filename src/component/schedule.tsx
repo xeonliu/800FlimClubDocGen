@@ -1,11 +1,12 @@
 import type { Schedule } from "../model/schedule";
 import type { MovieWithSchedule } from "../model/movie";
+import { formatChineseDateDisplay } from "../utils/date_format";
 
 /**
  * 单条放映记录：沙龙场次加粗，普通场次正常字重。
  */
 function ScheduleItem({ movie }: { movie: MovieWithSchedule }) {
-    const text = `${movie.showDate} ${movie.startTime}-${movie.endTime}《${movie.chinese}》`;
+    const text = `${formatChineseDateDisplay(movie.showDate)} ${movie.startTime}-${movie.endTime}《${movie.chinese}》`;
     return (
         <p className="MsoNormal schedule-line">
             {movie.isSalon ? (

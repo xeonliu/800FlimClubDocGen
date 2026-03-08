@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import type { MovieWithSchedule } from "../model/movie";
 import MovieTable from "./movie_table";
+import { isoDateToWeekday } from "../utils/date_format";
 
 interface Props {
     /** 非沙龙放映篇目列表（周四/六/日） */
@@ -14,10 +15,10 @@ const DAY_LABEL: Record<string, string> = {
     "周日": "周日",
 };
 
-/** 从 showDate 中提取"周X"，如"4月13日 周四" → "周四" */
+/** 从 ISO 日期字符串（存储格式）中提取"周X"，如 "2026-04-16" → "周四" */
 function extractWeekday(showDate: string): string {
-    const match = showDate.match(/周[一二三四五六日天]/);
-    return match ? DAY_LABEL[match[0]] ?? match[0] : showDate;
+    const weekday = isoDateToWeekday(showDate);
+    return DAY_LABEL[weekday] ?? (weekday || showDate);
 }
 
 /** 从 showDate 中提取序号（按照传入顺序） */

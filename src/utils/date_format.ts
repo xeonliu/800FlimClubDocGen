@@ -1,12 +1,16 @@
 /**
  * 日期格式化工具（东八区 UTC+8）
+ *
+ * 存储约定：showDate 使用 ISO 8601 字符串 "YYYY-MM-DD"（含年份）
+ * 渲染约定：展示时调用 formatChineseDateDisplay / isoDateToWeekday，不显示年份
  */
 
 const WEEKDAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
 /**
- * 将 JS Date 对象格式化为中文日期字符串（东八区）
+ * 将 JS Date 对象格式化为中文日期字符串（东八区，不含年份）
  * 例如：new Date("2026-04-13") → "4月13日 周一"
+ * 内部工具函数，外部请用 formatChineseDateDisplay。
  */
 export function formatChineseDate(date: Date): string {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
@@ -31,8 +35,49 @@ export function formatChineseDate(date: Date): string {
 }
 
 /**
- * 解析中文日期字符串为 Date 对象（默认使用当前年份，时区：Asia/Shanghai）
- * 例如："4月13日 周一" → 对应 Asia/Shanghai 时区的 Date 对象
+ * 将 ISO 日期字符串（存储格式 "YYYY-MM-DD"）转换为渲染用中文日期（不含年份）
+ * 例如："2026-04-13" → "4月13日 周一"
+ */
+export function formatChineseDateDisplay(isoStr: string): string {
+  if (!isoStr) return "";
+  const date = new Date(isoStr);
+  if (Number.isNaN(date.getTime())) return isoStr;
+  return formatChineseDate(date);
+}
+
+/**
+ * 从 ISO 日期字符串提取星期（Asia/Shanghai 时区）
+ * 例如："2026-04-13" → "周一"
+ */
+export function isoDateToWeekday(isoStr: string): string {
+  if (!isoStr) return "";
+  const date = new Date(isoStr);
+  if (Number.isNaN(date.getTime())) return "";
+  const fmt = new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    weekday: "short",
+  });
+  return fmt.format(date);
+}
+
+/**
+ * 将 Date 对象格式化为 ISO 日期字符串（Asia/Shanghai 时区，适合存储）
+ * 例如：new Date("2026-04-13T04:00:00Z") → "2026-04-13"
+ */
+export function dateToIsoString(date: Date): string {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+  // en-CA locale 输出 "YYYY-MM-DD" 格式，指定时区避免跨天偏移
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+/**
+ * 解析中文日期字符串为 Date 对象（已废弃：存储格式改为 ISO 字符串，请勿在新代码中使用）
+ * @deprecated 仅保留用于兼容旧数据迁移
  */
 export function parseChineseDate(
   dateStr: string,
@@ -43,12 +88,9 @@ export function parseChineseDate(
   const month = parseInt(match[1], 10) - 1; // 0-indexed
   const day = parseInt(match[2], 10);
 
-  // 通过 Intl.DateTimeFormat 将东八区中午12点转换为 UTC 时间戳，
-  // 避免因客户端本地时区不同导致日期偏移。
-  // 直接构造 Asia/Shanghai 时区的 12:00 等同于 UTC+8 的 04:00。
-  const utcOffsetMs = 8 * 60 * 60 * 1000; // UTC+8 → UTC 偏移量
-  const noonUtc8Ms = Date.UTC(year, month, day, 12, 0, 0); // 视为 UTC+8 中午
-  return new Date(noonUtc8Ms - utcOffsetMs); // 转换为实际 UTC 时间戳
+  const utcOffsetMs = 8 * 60 * 60 * 1000;
+  const noonUtc8Ms = Date.UTC(year, month, day, 12, 0, 0);
+  return new Date(noonUtc8Ms - utcOffsetMs);
 }
 
 /**

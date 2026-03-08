@@ -8,14 +8,14 @@ export const mockDocumentData: DocumentData = {
 
   info: {
     week: "",
-    speaker: "策展人",
+    speaker: "",
     theme: "战争迷雾",
     themeDesc: "从不同切入点描绘的各种形式的战争",
     studentId: "",
     department: "",
   },
 
-  semester: "2026年春",
+  semester: "2023年春",
   significance: "",
   overallRisk: "",
 
@@ -35,7 +35,7 @@ export const mockDocumentData: DocumentData = {
         desc: "1979年对越自卫反击战前夕，连长赵蒙生靠母亲走后门调入一线部队，却在战友们的感召下完成了从懦弱到英勇的蜕变。影片以真实战争为背景，通过个体命运折射出一代人的牺牲与荣光。",
         short: "一部真实反映对越自卫反击战的现实主义力作，悲壮感人，是中国战争片少有的佳作。",
         isSalon: false,
-        showDate: "4月13日 周四",
+        showDate: "2023-04-13",
         startTime: "18:30",
         endTime: "21:00",
         awards: "",
@@ -56,7 +56,7 @@ export const mockDocumentData: DocumentData = {
         desc: "1954—1962年，阿尔及利亚民族解放阵线在首都阿尔及尔与法国殖民军展开游击战。影片以拟纪录片手法真实再现了这段历史，冷静呈现双方的残酷与悲剧。",
         short: "没有一方是干净的，没有一方是邪恶的——这是战争最诚实的注脚。优雅的青灰色调，冰冷而沉重。",
         isSalon: true,
-        showDate: "4月14日 周五",
+        showDate: "2023-04-14",
         startTime: "18:30",
         endTime: "21:00",
         salonQuote:
@@ -84,7 +84,7 @@ export const mockDocumentData: DocumentData = {
         desc: "二战期间，法国抵抗运动成员菲利普·热尔比耶被捕后越狱，与同伴在秘密中坚持斗争。他们既要应对纳粹的追捕，还要面对内部的猜疑与背叛，在幽暗的地下世界里守护各自的信念。",
         short: "优雅无比的青灰色调，宛如黎明破晓前欲挣脱黑暗的微茫光明，没有浪漫化的革命情怀，每个抉择都充满精准而痛苦的布置。",
         isSalon: false,
-        showDate: "4月15日 周六",
+        showDate: "2023-04-15",
         startTime: "18:30",
         endTime: "21:00",
         awards: "",
@@ -105,7 +105,7 @@ export const mockDocumentData: DocumentData = {
         desc: "1916年，法军将领布洛拉德强令士兵冲锋，攻击失败后抓捕三名无辜士兵作替罪羊。达克斯上尉奋力申辩，却目睹了军官体制和战争本身的丑恶与虚伪。",
         short: "我曾数次羞于作为人类的一员，这将是一次。不管在什么样的环境下，上级的光荣之路，永远靠下属的鲜血铺平。",
         isSalon: false,
-        showDate: "4月16日 周日",
+        showDate: "2023-04-16",
         startTime: "18:30",
         endTime: "20:00",
         awards: "",
