@@ -49,7 +49,7 @@ export default function ScheduleTable({ schedule }: { schedule: Schedule }) {
 
             <p className="MsoNormal">
                 <span className="MsoSubtleReference">
-                    *地点由放映部部长李炜森向外联部汇总后加在文档中
+                    *地点由放映部部长向外联部汇总后加在文档中
                 </span>
             </p>
 
