@@ -30,7 +30,7 @@ interface Props {
  *   └──────────────────────────────┘
  */
 export default function DocumentPreview({ data }: Props) {
-    const { showInstructions = true, info, schedule, themeText, salonQuote, salonReview } = data;
+    const { showInstructions = true, info, schedule, themeText } = data;
 
     // 获取所有沙龙篇目（isSalon === true）
     const salonMovies = schedule.movies.filter((m) => m.isSalon);

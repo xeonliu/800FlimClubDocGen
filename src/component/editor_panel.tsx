@@ -287,23 +287,6 @@ export default function EditorPanel({
     setMovies([...data.movies, createEmptyMovie(isSalon)]);
   }
 
-  function updateSalonReview(index: number, text: string) {
-    const next = [...data.salonReview];
-    next[index] = text;
-    onChange({ ...data, salonReview: next });
-  }
-
-  function addSalonReviewParagraph() {
-    onChange({ ...data, salonReview: [...data.salonReview, ""] });
-  }
-
-  function removeSalonReviewParagraph(index: number) {
-    onChange({
-      ...data,
-      salonReview: data.salonReview.filter((_, i) => i !== index),
-    });
-  }
-
   return (
     <aside
       className={`editor-panel${collapsed ? " collapsed" : ""}`}
