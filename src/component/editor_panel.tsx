@@ -118,9 +118,6 @@ function MovieEditor({
             isClearable
             portalId="datepicker-portal"
             popperPlacement="bottom-end"
-            popperProps={{
-              positionFixed: true
-            }}
           />
         </div>
         <div className="editor-field">
