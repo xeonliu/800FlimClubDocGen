@@ -1,2 +1,593 @@
-/* App-level styles — document viewer and print utilities */
+/* ============================================================
+   App 布局：左侧编辑面板 + 右侧预览
+   ============================================================ */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* 整体双栏布局 */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #e8e8e8;
+}
+
+/* 右侧预览区 */
+.preview-area {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* 打印时隐藏编辑面板，全宽显示预览 */
+@media print {
+  .editor-panel {
+    display: none !important;
+  }
+  .preview-area {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+}
+
+/* ============================================================
+   编辑面板（左侧）
+   ============================================================ */
+.editor-panel {
+  width: 400px;
+  min-width: 400px;
+  background: #f7f7f9;
+  border-right: 1px solid #d0d0d8;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.25s ease, min-width 0.25s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.editor-panel.collapsed {
+  width: 36px;
+  min-width: 36px;
+}
+
+/* 折叠/展开按钮 */
+.panel-collapse-btn {
+  position: absolute;
+  top: 12px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: #e0e0e8;
+  border: 1px solid #c0c0cc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  z-index: 1;
+  padding: 0;
+  line-height: 1;
+}
+
+.panel-collapse-btn:hover {
+  background: #d0d0dc;
+}
+
+/* 面板内容区（折叠后隐藏） */
+.editor-panel-inner {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* 面板顶部：标题 + 打印按钮 */
+.editor-panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-right: 30px; /* 避免与折叠按钮重叠 */
+}
+
+.editor-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* ============================================================
+   可折叠区块
+   ============================================================ */
+.editor-section {
+  border: 1px solid #dde0e8;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.editor-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: #f0f2f8;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3a5c;
+  text-align: left;
+}
+
+.editor-section-header:hover {
+  background: #e6e9f4;
+}
+
+.section-arrow {
+  font-size: 11px;
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.editor-section-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ============================================================
+   表单字段
+   ============================================================ */
+.editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.editor-field-full {
+  grid-column: 1 / -1;
+}
+
+.editor-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  cursor: default;
+}
+
+.editor-label.inline-label {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #444;
+  cursor: pointer;
+}
+
+.editor-input,
+.editor-select {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #c8cad8;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+  color: #222;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.editor-input:focus,
+.editor-select:focus {
+  border-color: #5563de;
+}
+
+.editor-textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #c8cad8;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+  color: #222;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.editor-textarea:focus {
+  border-color: #5563de;
+}
+
+.editor-textarea-lg {
+  min-height: 100px;
+}
+
+/* react-datepicker 样式覆盖，使其与整体风格一致 */
+.editor-datepicker {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #c8cad8;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+  color: #222;
+  outline: none;
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.editor-hint {
+  font-size: 11px;
+  color: #888;
+  margin: 0 0 4px;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   影片编辑卡片
+   ============================================================ */
+.movie-editor-card {
+  border: 1px solid #dde0e8;
+  border-radius: 6px;
+  padding: 10px;
+  background: #fafbff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.movie-editor-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.movie-card-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.movie-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.inline-checkbox {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* 放映时间行（日期+开始+结束） */
+.movie-schedule-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+/* 影片字段网格（两列） */
+.movie-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* 导入按钮 */
+.btn-import {
+  width: 100%;
+  padding: 6px 10px;
+  background: #eef0ff;
+  border: 1px dashed #8891d8;
+  border-radius: 4px;
+  color: #4455cc;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.btn-import:hover {
+  background: #dde1ff;
+}
+
+/* 添加篇目按钮行 */
+.add-movie-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-add {
+  flex: 1;
+  padding: 6px 10px;
+  background: #f0f4ff;
+  border: 1px dashed #99aadd;
+  border-radius: 4px;
+  color: #4466bb;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-add:hover {
+  background: #e0e8ff;
+}
+
+.btn-add-salon {
+  background: #f0fff4;
+  border-color: #88cc99;
+  color: #336644;
+}
+
+.btn-add-salon:hover {
+  background: #d8ffea;
+}
+
+/* 导赏段落行 */
+.review-para-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.review-para-row .editor-textarea {
+  flex: 1;
+}
+
+/* ============================================================
+   按钮通用样式
+   ============================================================ */
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-danger {
+  border-color: #ffcccc;
+  color: #cc3333;
+}
+
+.btn-danger:hover {
+  background: #fff0f0;
+}
+
+.btn-danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 打印按钮 */
+.btn-print {
+  padding: 5px 10px;
+  background: #5563de;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.btn-print:hover {
+  background: #3d4fc0;
+}
+
+/* ============================================================
+   电影导入弹窗
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 10px;
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #f4f5fb;
+  border-bottom: 1px solid #e0e2ee;
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: #888;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.modal-close-btn:hover {
+  background: #e8e8f0;
+  color: #444;
+}
+
+.modal-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* 来源选项卡 */
+.source-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.source-tab {
+  padding: 5px 14px;
+  border: 1px solid #c8cad8;
+  border-radius: 20px;
+  background: #f5f5fb;
+  color: #555;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.source-tab.active {
+  background: #5563de;
+  border-color: #5563de;
+  color: #fff;
+  font-weight: 600;
+}
+
+.source-tab:hover:not(.active) {
+  border-color: #8891d8;
+  color: #3344bb;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #c8cad8;
+  border-radius: 5px;
+  font-size: 13px;
+  color: #222;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-input:focus {
+  border-color: #5563de;
+}
+
+.modal-hint {
+  font-size: 11px;
+  color: #999;
+}
+
+.modal-error {
+  background: #fff2f2;
+  border: 1px solid #ffcccc;
+  color: #cc2222;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid #e8e8f0;
+}
+
+.btn-primary {
+  padding: 7px 18px;
+  background: #5563de;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #3d4fc0;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 7px 18px;
+  background: #f0f0f8;
+  color: #555;
+  border: 1px solid #c8cad8;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e0e2ee;
+}
 
