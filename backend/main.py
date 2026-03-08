@@ -46,7 +46,9 @@ HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/124.0.0.0 Safari/537.36"
     ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "Referer": "https://movie.douban.com/",
 }
 
 # ─────────────────────────────────────────────
@@ -121,159 +123,197 @@ def _extract_douban_id(url: str) -> str:
 def fetch_douban(url: str) -> MovieInfo:
     """
     抓取豆瓣电影页面，解析电影信息。
-    豆瓣无官方 API，通过请求 HTML 页面解析。
+    优先尝试从网页解析，若被反爬则尝试官方抽象接口。
     """
     subject_id = _extract_douban_id(url)
     page_url = f"https://movie.douban.com/subject/{subject_id}/"
-    resp = _get(page_url)
-    soup = BeautifulSoup(resp.text, "lxml")
+    
+    movie_info = MovieInfo()
+    try:
+        resp = _get(page_url)
+        soup = BeautifulSoup(resp.text, "lxml")
+        
+        # ── 中文名 ──
+        title_tag = soup.find("span", property="v:itemreviewed")
+        if title_tag:
+            movie_info.chinese = _text(title_tag)
 
-    # ── 中文名 ──
-    title_tag = soup.find("span", property="v:itemreviewed")
-    chinese = _text(title_tag)
+            # 豆瓣电影信息 info div
+            info_div = soup.find("div", id="info")
 
-    # ── 外文名（#content h1 的第二个 span） ──
-    h1 = soup.find("div", id="content")
-    foreign = ""
-    if h1:
-        spans = h1.find("h1", recursive=True)
-        if spans:
-            all_spans = spans.find_all("span")
-            # 第一个 span 是中文名，第二个是年份
+            def extract_info_text(label: str) -> str:
+                """提取单行字段（文本形式）"""
+                if info_div is None:
+                    return ""
+                for span in info_div.find_all("span", class_="pl"):
+                    if label in span.get_text():
+                        sibling = span.next_sibling
+                        if sibling:
+                            text = sibling.strip() if isinstance(sibling, str) else sibling.get_text(strip=True)
+                            return text
+                return ""
+
+            # ── 导演 ──
+            directors = []
+            if info_div:
+                for a in info_div.select("span.pl ~ a[rel='v:directedBy']"):
+                    directors.append(a.get_text(strip=True))
+            movie_info.director = " / ".join(directors)
+
+            # ── 编剧 ──
+            writers = []
+            if info_div:
+                writer_span = info_div.find("span", class_="pl", string=re.compile("编剧"))
+                if writer_span:
+                    for a in writer_span.find_next_siblings("a"):
+                        if a.get_text(strip=True) == "更多...":
+                            break
+                        writers.append(a.get_text(strip=True))
+            movie_info.writer = " / ".join(writers)
+
+            # ── 主演 ──
+            actors_list = []
+            if info_div:
+                for a in info_div.select("a[rel='v:starring']"):
+                    actors_list.append(a.get_text(strip=True))
+            movie_info.actors = " / ".join(actors_list)
+
+            # ── 类型 ──
+            genres = []
+            if info_div:
+                for span in info_div.select("span[property='v:genre']"):
+                    genres.append(span.get_text(strip=True))
+            movie_info.genre = " / ".join(genres)
+
+            # ── 地区 ──
+            movie_info.region = extract_info_text("制片国家/地区")
+
+            # ── 片长 ──
+            length_tag = soup.find("span", property="v:runtime")
+            length = ""
+            if length_tag:
+                length_text = length_tag.get("content", "") or _text(length_tag)
+                length = re.sub(r"\D", "", length_text)  # 只保留数字
+            if not length:
+                length = re.sub(r"\D", "", extract_info_text("片长"))
+            movie_info.length = length
+
+            # ── 年份 ──
+            year_tag = soup.find("span", class_="year")
+            movie_info.year = re.sub(r"\D", "", _text(year_tag))
+
+            # ── 豆瓣评分 ──
+            rating_tag = soup.find("strong", property="v:average")
+            movie_info.douban = _text(rating_tag)
+
+            # ── 剧情简介 ──
+            summary_tag = soup.find("span", property="v:summary")
+            if summary_tag:
+                movie_info.desc = summary_tag.get_text(strip=True).replace("\xa0", "").strip()
+
+            # ── 豆瓣短评（热门短评第一条）──
+            comment_tag = soup.find("span", class_="short")
+            if comment_tag:
+                movie_info.short = comment_tag.get_text(strip=True)
+    except Exception:
+        pass
+
+    # 若网页解析失败（比如被反爬返回了 loading 页面），尝试接口
+    if not movie_info.chinese or not movie_info.desc:
+        # 尝试移动端 Rexxar API (通常包含完整的剧情简介)
+        mobile_api_url = f"https://m.douban.com/rexxar/api/v2/movie/{subject_id}"
+        mobile_headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1",
+            "Referer": f"https://m.douban.com/movie/subject/{subject_id}/",
+        }
+        try:
+            resp = requests.get(mobile_api_url, headers=mobile_headers, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                if not movie_info.chinese:
+                    movie_info.chinese = data.get("title", "")
+                if not movie_info.year:
+                    movie_info.year = data.get("year", "")
+                if not movie_info.desc:
+                    movie_info.desc = data.get("intro", "")
+                if not movie_info.director:
+                    directors = [d.get("name") for d in data.get("directors", [])]
+                    movie_info.director = " / ".join(filter(None, directors))
+                
+                # 尝试从 credits 获取更全的信息（如编剧）
+                try:
+                    credits_url = f"https://m.douban.com/rexxar/api/v2/movie/{subject_id}/credits"
+                    c_resp = requests.get(credits_url, headers=mobile_headers, timeout=5)
+                    if c_resp.status_code == 200:
+                        c_data = c_resp.json()
+                        writers = []
+                        for item in c_data.get("items", []):
+                            if item.get("category") == "编剧":
+                                writers.append(item.get("name"))
+                        if writers:
+                            movie_info.writer = " / ".join(filter(None, writers))
+                except Exception:
+                    pass
+
+                if not movie_info.actors:
+                    actors = [a.get("name") for a in data.get("actors", [])]
+                    movie_info.actors = " / ".join(filter(None, actors[:10]))
+                if not movie_info.genre:
+                    movie_info.genre = " / ".join(data.get("genres", []))
+                if not movie_info.region:
+                    countries = data.get("countries", [])
+                    movie_info.region = " / ".join(countries)
+                if not movie_info.length:
+                    durations = data.get("durations", [])
+                    if durations:
+                        movie_info.length = re.sub(r"\D", "", durations[0])
+                if not movie_info.foreign:
+                    # original_title 为空时，尝试 aka 中的第一个英文名
+                    original = data.get("original_title", "")
+                    if not original:
+                        aka = data.get("aka", [])
+                        for name in aka:
+                            if re.search(r"[a-zA-Z]", name):
+                                original = name
+                                break
+                    movie_info.foreign = original
+                if not movie_info.douban:
+                    rating = data.get("rating", {})
+                    if rating:
+                        movie_info.douban = str(rating.get("value", ""))
+        except Exception:
             pass
 
-    # 豆瓣电影信息 info div
-    info_div = soup.find("div", id="info")
-    info_text = info_div.get_text("\n") if info_div else ""
+    # 若还是缺失关键信息，尝试 subject_abstract 接口
+    if not movie_info.chinese:
+        api_url = f"https://movie.douban.com/j/subject_abstract?subject_id={subject_id}"
+        try:
+            resp = _get(api_url)
+            data = resp.json()
+            if data.get("r") == 0 and "subject" in data:
+                subj = data["subject"]
+                movie_info.chinese = subj.get("title", "")
+                movie_info.year = subj.get("release_year", "")
+                movie_info.director = " / ".join(subj.get("directors", []))
+                movie_info.actors = " / ".join(subj.get("actors", []))
+                movie_info.genre = " / ".join(subj.get("types", []))
+                movie_info.region = subj.get("region", "")
+                movie_info.length = re.sub(r"\D", "", subj.get("duration", ""))
+                movie_info.douban = str(subj.get("rate", ""))
+                movie_info.short = subj.get("short_comment", {}).get("content", "")
+        except Exception:
+            pass
 
-    def extract_info_field(label: str) -> str:
-        """在 info_text 中提取特定字段内容"""
-        if info_div is None:
-            return ""
-        # 找到包含 label 的 span
-        for span in info_div.find_all("span", class_="pl"):
-            if label in span.get_text():
-                # 收集 span 之后、下一个 .pl 之前的文本
-                parts = []
-                for sibling in span.next_siblings:
-                    if hasattr(sibling, "get_attribute_list") and "pl" in sibling.get_attribute_list("class", []):
-                        break
-                    text = sibling.get_text(strip=True) if hasattr(sibling, "get_text") else str(sibling).strip()
-                    if text:
-                        parts.append(text)
-                return " / ".join(p for p in parts if p and p != "/")
-        return ""
+    if not movie_info.chinese:
+        raise HTTPException(status_code=404, detail="无法获取豆瓣电影信息，可能受到反爬限制")
 
-    def extract_info_text(label: str) -> str:
-        """提取单行字段（文本形式）"""
-        if info_div is None:
-            return ""
-        for span in info_div.find_all("span", class_="pl"):
-            if label in span.get_text():
-                sibling = span.next_sibling
-                if sibling:
-                    text = sibling.strip() if isinstance(sibling, str) else sibling.get_text(strip=True)
-                    return text
-        return ""
+    # 尝试分离中外文名
+    m = re.search(r"[(（]([^)）]+)[)）]", movie_info.chinese)
+    if m:
+        movie_info.foreign = m.group(1)
+        movie_info.chinese = movie_info.chinese[: movie_info.chinese.index(m.group(0))].strip()
 
-    # ── 导演 ──
-    directors = []
-    if info_div:
-        for a in info_div.select("span.pl ~ a[rel='v:directedBy']"):
-            directors.append(a.get_text(strip=True))
-    director = " / ".join(directors)
-
-    # ── 编剧 ──
-    writers = []
-    if info_div:
-        writer_span = info_div.find("span", class_="pl", string=re.compile("编剧"))
-        if writer_span:
-            for a in writer_span.find_next_siblings("a"):
-                if a.get_text(strip=True) == "更多...":
-                    break
-                writers.append(a.get_text(strip=True))
-    writer = " / ".join(writers)
-
-    # ── 主演 ──
-    actors_list = []
-    if info_div:
-        for a in info_div.select("a[rel='v:starring']"):
-            actors_list.append(a.get_text(strip=True))
-    actors = " / ".join(actors_list)
-
-    # ── 类型 ──
-    genres = []
-    if info_div:
-        for span in info_div.select("span[property='v:genre']"):
-            genres.append(span.get_text(strip=True))
-    genre = " / ".join(genres)
-
-    # ── 地区 ──
-    region = extract_info_text("制片国家/地区")
-
-    # ── 语言 (不需要，但可备用) ──
-
-    # ── 片长 ──
-    length_tag = soup.find("span", property="v:runtime")
-    length = ""
-    if length_tag:
-        length_text = length_tag.get("content", "") or _text(length_tag)
-        length = re.sub(r"\D", "", length_text)  # 只保留数字
-    if not length:
-        length = re.sub(r"\D", "", extract_info_text("片长"))
-
-    # ── 年份 ──
-    year_tag = soup.find("span", class_="year")
-    year = re.sub(r"\D", "", _text(year_tag))
-
-    # ── 豆瓣评分 ──
-    rating_tag = soup.find("strong", property="v:average")
-    douban_rating = _text(rating_tag)
-
-    # ── 剧情简介 ──
-    desc = ""
-    summary_tag = soup.find("span", property="v:summary")
-    if summary_tag:
-        desc = summary_tag.get_text(strip=True).replace("\xa0", "").strip()
-
-    # ── 豆瓣短评（热门短评第一条）──
-    short = ""
-    comment_tag = soup.find("span", class_="short")
-    if comment_tag:
-        short = comment_tag.get_text(strip=True)
-
-    # ── 外文名（标题中的非中文部分）──
-    if not foreign:
-        title_full = _text(soup.find("title"))
-        # 豆瓣标题格式："中文名 (外文名)"
-        m = re.search(r"[(（]([^)）]+)[)）]", chinese)
-        if m:
-            foreign = m.group(1)
-            chinese = chinese[: chinese.index(m.group(0))].strip()
-        # 尝试从 og:title 提取
-        og_title = soup.find("meta", property="og:title")
-        if og_title and not foreign:
-            og_text = og_title.get("content", "")
-            m2 = re.search(r"[(（]([^)）]+)[)）]", og_text)
-            if m2:
-                foreign = m2.group(1)
-        if not foreign:
-            pass  # 无法从标题中解析外文名，留空即可
-
-    return MovieInfo(
-        chinese=chinese,
-        foreign=foreign,
-        year=year,
-        director=director,
-        writer=writer,
-        actors=actors,
-        genre=genre,
-        region=region,
-        length=length,
-        douban=douban_rating,
-        desc=desc,
-        short=short,
-    )
+    return movie_info
 
 
 # ─────────────────────────────────────────────
