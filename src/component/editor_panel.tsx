@@ -210,7 +210,7 @@ function MovieEditor({
         <input
           className="editor-input"
           type="text"
-          placeholder={'所获主要奖项，如无则填"无"'}
+          placeholder='所获主要奖项，如无则填"无"'
           value={movie.awards}
           onChange={(e) => set("awards", e.target.value)}
         />
@@ -343,7 +343,8 @@ export default function EditorPanel({
     setMovies([...data.movies, createEmptyMovie(isSalon)]);
   }
 
-  const printLabel = activeTab === "report" ? "🖨️ 打印报备表" : "🖨️ 打印宣传资料";
+  const tabName = activeTab === "report" ? "报备表" : "宣传资料";
+  const printLabel = `🖨️ 打印${tabName}`;
 
   return (
     <aside
@@ -368,7 +369,7 @@ export default function EditorPanel({
               <button
                 className="btn-print"
                 onClick={() => window.print()}
-                title={`打印当前预览标签页 / 导出 PDF（当前：${activeTab === "report" ? "报备表" : "宣传资料"}）`}
+                title={`打印当前预览标签页 / 导出 PDF（当前：${tabName}）`}
               >
                 {printLabel}
               </button>

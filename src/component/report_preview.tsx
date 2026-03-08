@@ -62,10 +62,7 @@ function ReportMovieBlock({
         {
             label: "片长",
             value: (
-                <>
-                    <span style={{ fontFamily: "华文楷体" }}>{movie.length}</span>
-                    <span style={{ fontFamily: "华文楷体" }}>分钟</span>
-                </>
+                <span style={{ fontFamily: "华文楷体" }}>{movie.length}分钟</span>
             ),
         },
         { label: "豆瓣评分", value: movie.douban },
@@ -261,7 +258,7 @@ export default function ReportPreview({ data }: Props) {
                         </p>
                         {salonMovies.map((movie, idx) => (
                             <ReportMovieBlock
-                                key={movie.chinese + idx}
+                                key={`salon-${movie.showDate}-${idx}`}
                                 movie={movie}
                                 label={`沙龙篇目${idx + 1}：`}
                             />
@@ -278,7 +275,7 @@ export default function ReportPreview({ data }: Props) {
                         </p>
                         {regularMovies.map((movie, idx) => (
                             <ReportMovieBlock
-                                key={movie.chinese + idx}
+                                key={`regular-${movie.showDate}-${idx}`}
                                 movie={movie}
                                 label={`放映篇目${idx + 1}：`}
                             />
