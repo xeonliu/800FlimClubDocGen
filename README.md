@@ -1,6 +1,6 @@
-# 800 号电影社文档生成器 (800FilmClubDocGen)
+# 800 号电影社影展文档生成器 (800FilmClubDocGen)
 
-基于 Vite + React + FastAPI/Cloudflare Workers 构建的自动化影展报备表生成工具。旨在解决从豆瓣、TMDB 手动复制电影信息繁琐的问题，支持一键抓取并生成标准格式的报备文档。
+基于 Vite + React + FastAPI/Cloudflare Workers 构建的自动化影展文档生成工具。旨在解决从豆瓣、TMDB 手动复制电影信息繁琐的问题，支持一键抓取并生成标准格式的报备文档。
 
 ## 🌟 特性
 
@@ -14,7 +14,7 @@
 
 ## 🚀 快速开始
 
-### 前端开发 (Vite)
+### 前端开发 (Vite + React)
 ```bash
 yarn install
 yarn dev
@@ -51,4 +51,8 @@ npx wrangler deploy  # 部署到生产环境
 - [x] 智能防反爬回退机制
 - [x] Cloudflare Workers 适配
 - [ ] 导出为 Word (.docx) 格式支持
-- [ ] 更多主题模板选择
+- [x] 支持宣传表和报备表两种文档
+
+## 样例数据来源
+
+2023 年 4 月，800 号电影社“战争迷雾”影展。
