@@ -189,22 +189,44 @@
    打印 / PDF 导出样式
    ============================================================ */
 @media print {
+  body, html {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .app-layout {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .preview-area {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
   .doc-viewer {
     background: white !important;
     padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   .doc-page {
     width: 100% !important;
-    min-height: 0 !important; /* 打印时靠 @page 边距控制，高度自然流动 */
-    padding: 0 !important;    /* 打印边距由 @page 控制 */
+    min-height: 0 !important;
+    padding: 0 !important;
     box-shadow: none !important;
     margin: 0 !important;
-    page-break-after: always; /* 每页内容后强制分页 */
+    page-break-after: always !important;
+    break-after: page !important;
+    display: block !important;
   }
 
   .doc-page:last-child {
-    page-break-after: auto;   /* 最后一页不强制分页，防止空白页 */
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 
   .doc-page-break-screen {
