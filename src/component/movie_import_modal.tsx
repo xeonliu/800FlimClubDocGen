@@ -7,7 +7,17 @@ interface MovieImportModalProps {
   onClose: () => void;
 }
 
-const SOURCE_OPTIONS: { value: ImportSource; label: string; placeholder: string }[] = [
+const SOURCE_OPTIONS: {
+  value: ImportSource;
+  label: string;
+  placeholder: string;
+  tooltip?: {
+    title: string;
+    description: string;
+    linkLabel: string;
+    link: string;
+  };
+}[] = [
   {
     value: "douban",
     label: "豆瓣",
@@ -17,11 +27,23 @@ const SOURCE_OPTIONS: { value: ImportSource; label: string; placeholder: string 
     value: "tmdb",
     label: "TMDB",
     placeholder: "https://www.themoviedb.org/movie/680",
+    tooltip: {
+      title: "TMDB",
+      description: "The Movie Database，全球影视数据库与开放 API。",
+      linkLabel: "https://www.themoviedb.org/",
+      link: "https://www.themoviedb.org/",
+    },
   },
   {
     value: "imdb",
     label: "IMDB",
     placeholder: "https://www.imdb.com/title/tt0110912/",
+    tooltip: {
+      title: "IMDb",
+      description: "Internet Movie Database，全球影视数据库与评分站。",
+      linkLabel: "https://www.imdb.com/",
+      link: "https://www.imdb.com/",
+    },
   },
 ];
 
@@ -46,6 +68,33 @@ export default function MovieImportModal({
 
   const currentOption = SOURCE_OPTIONS.find((o) => o.value === source)!;
 
+  function isValidMovieResponse(data: unknown): data is Partial<Movie> {
+    if (!data || typeof data !== "object" || Array.isArray(data)) return false;
+
+    const obj = data as Record<string, unknown>;
+    const possibleFields: Array<keyof Movie> = [
+      "chinese",
+      "foreign",
+      "year",
+      "director",
+      "writer",
+      "actors",
+      "genre",
+      "region",
+      "length",
+      "douban",
+      "desc",
+      "short",
+    ];
+
+    const hasKnownField = possibleFields.some((key) => key in obj);
+    if (!hasKnownField) return false;
+
+    return possibleFields.every((key) =>
+      obj[key] === undefined || typeof obj[key] === "string"
+    );
+  }
+
   async function handleImport() {
     if (!url.trim()) {
       setError("请输入电影链接");
@@ -53,21 +102,51 @@ export default function MovieImportModal({
     }
     setLoading(true);
     setError(null);
+
+    let resp: Response;
     try {
-      const resp = await fetch(`${API_BASE}/api/fetch-movie`, {
+      resp = await fetch(`${API_BASE}/api/fetch-movie`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ source, url: url.trim() }),
       });
-      if (!resp.ok) {
-        const data = await resp.json().catch(() => ({}));
-        throw new Error((data as { detail?: string }).detail ?? `请求失败 (${resp.status})`);
-      }
-      const movie = (await resp.json()) as Partial<Movie>;
-      onImport(movie);
+    } catch {
+      setError("网络连接失败：无法连接到服务，请检查网络是否可用");
+      setLoading(false);
+      return;
+    }
+
+    if (!resp.ok) {
+      const data = await resp.json().catch(() => ({}));
+      const detail =
+        typeof (data as { detail?: unknown }).detail === "string"
+          ? (data as { detail: string }).detail
+          : `请求失败 (${resp.status})`;
+      setError(`爬取失败：${detail}`);
+      setLoading(false);
+      return;
+    }
+
+    let body: unknown;
+    try {
+      body = await resp.json();
+    } catch {
+      setError("返回数据异常：服务返回的不是有效 JSON");
+      setLoading(false);
+      return;
+    }
+
+    if (!isValidMovieResponse(body)) {
+      setError("返回数据异常：服务返回结构不符合预期，请稍后重试");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      onImport(body);
       onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "导入失败，请检查链接或稍后重试");
+    } catch {
+      setError("返回数据异常：导入失败，返回字段可能不完整");
     } finally {
       setLoading(false);
     }
@@ -95,17 +174,32 @@ export default function MovieImportModal({
             <label className="modal-label">数据来源</label>
             <div className="source-tabs">
               {SOURCE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  className={`source-tab${source === opt.value ? " active" : ""}`}
-                  onClick={() => {
-                    setSource(opt.value);
-                    setUrl("");
-                    setError(null);
-                  }}
-                >
-                  {opt.label}
-                </button>
+                <div key={opt.value} className="source-tab-wrapper">
+                  <button
+                    className={`source-tab${source === opt.value ? " active" : ""}`}
+                    onClick={() => {
+                      setSource(opt.value);
+                      setUrl("");
+                      setError(null);
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                  {opt.tooltip && (
+                    <div className="source-tooltip" role="tooltip">
+                      <div className="source-tooltip-title">{opt.tooltip.title}</div>
+                      <div className="source-tooltip-desc">{opt.tooltip.description}</div>
+                      <a
+                        className="source-tooltip-link"
+                        href={opt.tooltip.link}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {opt.tooltip.linkLabel}
+                      </a>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>

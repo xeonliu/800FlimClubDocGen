@@ -10,6 +10,7 @@ import TimeSelect from "./time_select";
 interface EditorPanelProps {
   data: EditorFormData;
   onChange: (data: EditorFormData) => void;
+  onReset: () => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
 }
@@ -260,6 +261,7 @@ export default function EditorPanel({
   onChange,
   collapsed,
   onToggleCollapse,
+  onReset,
 }: EditorPanelProps) {
   const setInfo = useCallback(
     (key: keyof typeof data.info, value: string) => {
@@ -306,13 +308,23 @@ export default function EditorPanel({
         <div className="editor-panel-inner">
           <div className="editor-panel-top">
             <h2 className="editor-panel-title">📋 信息填写</h2>
-            <button
-              className="btn-print"
-              onClick={() => window.print()}
-              title="打印 / 导出 PDF"
-            >
-              🖨️ 打印 / 导出 PDF
-            </button>
+            <div className="editor-panel-actions">
+              <button
+                className="btn-print"
+                onClick={() => window.print()}
+                title="打印 / 导出 PDF"
+              >
+                🖨️ 打印 / 导出 PDF
+              </button>
+              <button
+                className="panel-reset-btn"
+                onClick={onReset}
+                title="重置所有数据到初始状态"
+                aria-label="重置所有数据到初始状态"
+              >
+                🧹 重置
+              </button>
+            </div>
           </div>
 
           {/* ─── 基本信息 ─── */}

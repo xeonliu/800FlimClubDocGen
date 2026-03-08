@@ -9,6 +9,10 @@ const WEEKDAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "�
  * 例如：new Date("2026-04-13") → "4月13日 周一"
  */
 export function formatChineseDate(date: Date): string {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return "";
+  }
+
   // 使用 Intl.DateTimeFormat 获取东八区的年月日和星期
   const fmt = new Intl.DateTimeFormat("zh-CN", {
     timeZone: "Asia/Shanghai",
