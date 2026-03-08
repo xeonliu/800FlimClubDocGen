@@ -253,6 +253,16 @@ body,
   outline: none;
 }
 
+/* 强制弹出层向右偏移（即对齐其右侧） */
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+/* 当 portalId 启用时，通常需要全局定位修正 */
+#datepicker-portal .react-datepicker-popper {
+  z-index: 10000;
+}
+
 .react-datepicker-wrapper {
   width: 100%;
 }
