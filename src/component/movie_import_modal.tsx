@@ -7,7 +7,17 @@ interface MovieImportModalProps {
   onClose: () => void;
 }
 
-const SOURCE_OPTIONS: { value: ImportSource; label: string; placeholder: string }[] = [
+const SOURCE_OPTIONS: {
+  value: ImportSource;
+  label: string;
+  placeholder: string;
+  tooltip?: {
+    title: string;
+    description: string;
+    linkLabel: string;
+    link: string;
+  };
+}[] = [
   {
     value: "douban",
     label: "豆瓣",
@@ -17,11 +27,23 @@ const SOURCE_OPTIONS: { value: ImportSource; label: string; placeholder: string 
     value: "tmdb",
     label: "TMDB",
     placeholder: "https://www.themoviedb.org/movie/680",
+    tooltip: {
+      title: "TMDB",
+      description: "The Movie Database，全球影视数据库与开放 API。",
+      linkLabel: "https://www.themoviedb.org/",
+      link: "https://www.themoviedb.org/",
+    },
   },
   {
     value: "imdb",
     label: "IMDB",
     placeholder: "https://www.imdb.com/title/tt0110912/",
+    tooltip: {
+      title: "IMDb",
+      description: "Internet Movie Database，全球影视数据库与评分站。",
+      linkLabel: "https://www.imdb.com/",
+      link: "https://www.imdb.com/",
+    },
   },
 ];
 
@@ -152,17 +174,32 @@ export default function MovieImportModal({
             <label className="modal-label">数据来源</label>
             <div className="source-tabs">
               {SOURCE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  className={`source-tab${source === opt.value ? " active" : ""}`}
-                  onClick={() => {
-                    setSource(opt.value);
-                    setUrl("");
-                    setError(null);
-                  }}
-                >
-                  {opt.label}
-                </button>
+                <div key={opt.value} className="source-tab-wrapper">
+                  <button
+                    className={`source-tab${source === opt.value ? " active" : ""}`}
+                    onClick={() => {
+                      setSource(opt.value);
+                      setUrl("");
+                      setError(null);
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                  {opt.tooltip && (
+                    <div className="source-tooltip" role="tooltip">
+                      <div className="source-tooltip-title">{opt.tooltip.title}</div>
+                      <div className="source-tooltip-desc">{opt.tooltip.description}</div>
+                      <a
+                        className="source-tooltip-link"
+                        href={opt.tooltip.link}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {opt.tooltip.linkLabel}
+                      </a>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
