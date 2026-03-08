@@ -36,6 +36,7 @@ jobs:
         run: yarn build
         env:
           GITHUB_ACTIONS: "true"
+          VITE_API_BASE: "https://800filmclub-docgen-api.testuser.workers.dev"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

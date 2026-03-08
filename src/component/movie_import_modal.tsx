@@ -27,7 +27,7 @@ const SOURCE_OPTIONS: { value: ImportSource; label: string; placeholder: string 
 
 /** 后端 API 地址。
  *  开发时默认 http://localhost:8000（本地，无需 HTTPS）。
- *  生产部署时请在 .env 中设置 VITE_API_BASE=https://your-backend.example.com
+ *  生产部署时请在 GitHub Action 的环境变量或项目的 .env 中设置 VITE_API_BASE
  */
 const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://localhost:8000";
 

@@ -97,104 +97,216 @@ async function fetchDouban(movieUrl) {
   const subjectId = idMatch[1];
   const pageUrl = `https://movie.douban.com/subject/${subjectId}/`;
 
-  const resp = await upstreamGet(pageUrl, {
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept-Language": "zh-CN,zh;q=0.9",
-    Referer: "https://movie.douban.com/",
-  });
-
-  const html = await resp.text();
-
-  // 用正则从 HTML 中提取所需字段（Workers 环境无 DOM API）
-  function extract(pattern, flags = "") {
-    const m = html.match(new RegExp(pattern, flags));
-    return m ? m[1].trim() : "";
-  }
-
-  function extractAll(pattern, flags = "g") {
-    return [...html.matchAll(new RegExp(pattern, flags))].map((m) =>
-      m[1].trim()
-    );
-  }
-
-  // 中文名（og:title）
-  const chinese = extract('<meta property="og:title" content="([^"]+)"');
-
-  // 外文名（括号内）
-  let foreign = "";
-  const foreignMatch = chinese.match(/[（(]([^)）]+)[)）]/);
-  if (foreignMatch) {
-    foreign = foreignMatch[1];
-  }
-  const chineseName = foreignMatch
-    ? chinese.slice(0, chinese.indexOf(foreignMatch[0])).trim()
-    : chinese;
-
-  // 年份
-  const year = extract(/<span class="year">\((\d{4})\)<\/span>/);
-
-  // 导演
-  const directors = extractAll(/rel="v:directedBy">([^<]+)<\/a>/);
-
-  // 编剧
-  const writers = extractAll(
-    /<span class="pl">\s*编剧[^<]*<\/span>[^]*?<a[^>]*>([^<]+)<\/a>/,
-    "g"
-  );
-  // 备用编剧提取（更宽泛）
-  const writerSection = html.match(
-    /<span class="pl">\s*编剧[^<]*<\/span>([\s\S]*?)<br\s*\/?>/
-  );
-  const writersFromSection = writerSection
-    ? [...writerSection[1].matchAll(/<a[^>]*>([^<]+)<\/a>/g)].map((m) =>
-        m[1].trim()
-      )
-    : [];
-
-  // 主演
-  const actors = extractAll(/rel="v:starring">([^<]+)<\/a>/);
-
-  // 类型
-  const genres = extractAll(/property="v:genre">([^<]+)<\/span>/);
-
-  // 地区
-  const regionMatch = html.match(
-    /<span class="pl">\s*制片国家\/地区:<\/span>\s*([^\n<]+)/
-  );
-  const region = regionMatch ? regionMatch[1].trim() : "";
-
-  // 片长
-  const lengthTag = extract(/property="v:runtime" content="(\d+)"/);
-  const length = lengthTag || extract(/property="v:runtime">([^<]+)<\/span>/);
-
-  // 豆瓣评分
-  const douban = extract(/property="v:average">([^<]+)<\/strong>/);
-
-  // 剧情简介（提取纯文本，确保不包含 HTML 标记）
-  const descRaw = extract(
-    /property="v:summary"[^>]*>([\s\S]*?)<\/span>/
-  );
-  // 先将 &nbsp; 等 HTML 实体还原，再去除所有 < ... > 块，最终返回纯文本
-  const desc = stripHtml(descRaw);
-
-  // 豆瓣短评
-  const short = extract(/<span class="short">([^<]+)<\/span>/);
-
-  return {
-    chinese: chineseName || chinese,
-    foreign,
-    year,
-    director: directors.join(" / "),
-    writer: (writers.length ? writers : writersFromSection).join(" / "),
-    actors: actors.slice(0, 5).join(" / "),
-    genre: genres.join(" / "),
-    region,
-    length: length.replace(/\D/g, ""),
-    douban,
-    desc,
-    short,
+  let movieInfo = {
+    chinese: "",
+    foreign: "",
+    year: "",
+    director: "",
+    writer: "",
+    actors: "",
+    genre: "",
+    region: "",
+    length: "",
+    douban: "",
+    desc: "",
+    short: "",
   };
+
+  try {
+    const resp = await upstreamGet(pageUrl, {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      "Accept-Language": "zh-CN,zh;q=0.9",
+      Referer: "https://movie.douban.com/",
+    });
+
+    const html = await resp.text();
+
+    // 用正则从 HTML 中提取所需字段（Workers 环境无 DOM API）
+    function extract(pattern, flags = "") {
+      const m = html.match(new RegExp(pattern, flags));
+      return m ? m[1].trim() : "";
+    }
+
+    function extractAll(pattern, flags = "g") {
+      return [...html.matchAll(new RegExp(pattern, flags))].map((m) =>
+        m[1].trim()
+      );
+    }
+
+    // 中文名（og:title）
+    const chinese = extract('<meta property="og:title" content="([^"]+)"');
+
+    // 外文名（括号内）
+    let foreign = "";
+    const foreignMatch = chinese.match(/[（(]([^)）]+)[)）]/);
+    if (foreignMatch) {
+      foreign = foreignMatch[1];
+    }
+    const chineseName = foreignMatch
+      ? chinese.slice(0, chinese.indexOf(foreignMatch[0])).trim()
+      : chinese;
+
+    // 年份
+    const year = extract(/<span class="year">\((\d{4})\)<\/span>/);
+
+    // 导演
+    const directors = extractAll(/rel="v:directedBy">([^<]+)<\/a>/);
+
+    // 编剧
+    const writers = extractAll(
+      /<span class="pl">\s*编剧[^<]*<\/span>[^]*?<a[^>]*>([^<]+)<\/a>/,
+      "g"
+    );
+    // 备用编剧提取（更宽泛）
+    const writerSection = html.match(
+      /<span class="pl">\s*编剧[^<]*<\/span>([\s\S]*?)<br\s*\/?>/
+    );
+    const writersFromSection = writerSection
+      ? [...writerSection[1].matchAll(/<a[^>]*>([^<]+)<\/a>/g)].map((m) =>
+          m[1].trim()
+        )
+      : [];
+
+    // 主演
+    const actors = extractAll(/rel="v:starring">([^<]+)<\/a>/);
+
+    // 类型
+    const genres = extractAll(/property="v:genre">([^<]+)<\/span>/);
+
+    // 地区
+    const regionMatch = html.match(
+      /<span class="pl">\s*制片国家\/地区:<\/span>\s*([^\n<]+)/
+    );
+    const region = regionMatch ? regionMatch[1].trim() : "";
+
+    // 片长
+    const lengthTag = extract(/property="v:runtime" content="(\d+)"/);
+    const length = lengthTag || extract(/property="v:runtime">([^<]+)<\/span>/);
+
+    // 豆瓣评分
+    const douban = extract(/property="v:average">([^<]+)<\/strong>/);
+
+    // 剧情简介
+    const descRaw = extract(/property="v:summary"[^>]*>([\s\S]*?)<\/span>/);
+    const desc = stripHtml(descRaw);
+
+    // 豆瓣短评
+    const short = extract(/<span class="short">([^<]+)<\/span>/);
+
+    movieInfo = {
+      chinese: chineseName || chinese,
+      foreign,
+      year,
+      director: directors.join(" / "),
+      writer: (writers.length ? writers : writersFromSection).join(" / "),
+      actors: actors.slice(0, 5).join(" / "),
+      genre: genres.join(" / "),
+      region,
+      length: length.replace(/\D/g, ""),
+      douban,
+      desc,
+      short,
+    };
+  } catch (err) {
+    console.error("网页解析失败，尝试接口:", err);
+  }
+
+  // 若网页解析失败或关键信息缺失，尝试移动端 Rexxar API
+  if (!movieInfo.chinese || !movieInfo.desc) {
+    const mobileHeaders = {
+      "User-Agent":
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Mobile/15E148 Safari/604.1",
+      Referer: `https://m.douban.com/movie/subject/${subjectId}/`,
+    };
+
+    try {
+      const mobileApiUrl = `https://m.douban.com/rexxar/api/v2/movie/${subjectId}`;
+      const resp = await fetch(mobileApiUrl, { headers: mobileHeaders });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (!movieInfo.chinese) movieInfo.chinese = data.title || "";
+        if (!movieInfo.year) movieInfo.year = data.year || "";
+        if (!movieInfo.desc) movieInfo.desc = data.intro || "";
+        if (!movieInfo.director) {
+          movieInfo.director = (data.directors || [])
+            .map((d) => d.name)
+            .filter(Boolean)
+            .join(" / ");
+        }
+        if (!movieInfo.actors) {
+          movieInfo.actors = (data.actors || [])
+            .slice(0, 10)
+            .map((a) => a.name)
+            .filter(Boolean)
+            .join(" / ");
+        }
+        if (!movieInfo.genre) movieInfo.genre = (data.genres || []).join(" / ");
+        if (!movieInfo.region)
+          movieInfo.region = (data.countries || []).join(" / ");
+        if (!movieInfo.length && data.durations) {
+          movieInfo.length = data.durations[0]?.replace(/\D/g, "") || "";
+        }
+        if (!movieInfo.douban) movieInfo.douban = String(data.rating?.value || "");
+
+        if (!movieInfo.foreign) {
+          let original = data.original_title || "";
+          if (!original && data.aka) {
+            for (const name of data.aka) {
+              if (/[a-zA-Z]/.test(name)) {
+                original = name;
+                break;
+              }
+            }
+          }
+          movieInfo.foreign = original;
+        }
+
+        // 尝试获取编剧
+        try {
+          const creditsUrl = `https://m.douban.com/rexxar/api/v2/movie/${subjectId}/credits`;
+          const cResp = await fetch(creditsUrl, { headers: mobileHeaders });
+          if (cResp.ok) {
+            const cData = await cResp.json();
+            const writers = (cData.items || [])
+              .filter((item) => item.category === "编剧")
+              .map((item) => item.name);
+            if (writers.length > 0) movieInfo.writer = writers.join(" / ");
+          }
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    } catch (err) {
+      console.error("移动端 API 失败:", err);
+    }
+  }
+
+  // 若还是缺失关键信息，尝试 subject_abstract 接口
+  if (!movieInfo.chinese) {
+    const apiUrl = `https://movie.douban.com/j/subject_abstract?subject_id=${subjectId}`;
+    try {
+      const resp = await upstreamGet(apiUrl);
+      const data = await resp.json();
+      if (data.r === 0 && data.subject) {
+        const subj = data.subject;
+        movieInfo.chinese = subj.title || "";
+        movieInfo.year = subj.release_year || "";
+        movieInfo.director = (subj.directors || []).join(" / ");
+        movieInfo.actors = (subj.actors || []).join(" / ");
+        movieInfo.genre = (subj.types || []).join(" / ");
+        movieInfo.region = subj.region || "";
+      }
+    } catch (err) {
+      /* ignore */
+    }
+  }
+
+  if (!movieInfo.chinese) {
+    throw new ApiError(404, "未能抓取到有效的电影信息，请检查链接或稍后重试");
+  }
+
+  return movieInfo;
 }
 
 // ─────────────────────────────────────────────────────────────
