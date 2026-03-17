@@ -82,6 +82,7 @@ function App() {
     <div className="app-layout">
       <EditorPanel
         data={editorData}
+        documentData={documentData}
         onChange={setEditorData}
         onReset={() => {
           if (window.confirm("确定要清空所有已填内容并重置吗？")) {

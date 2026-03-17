@@ -1,14 +1,18 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import type { EditorFormData, EditorMovieData } from "../model/editor";
-import type { Movie } from "../model/movie";
+import type { Movie, MovieWithSchedule } from "../model/movie";
+import type { DocumentData } from "../model/document";
 import { createEmptyMovie } from "../utils/editor_utils";
+import { formatChineseDateDisplay, isoDateToWeekday } from "../utils/date_format";
 import MovieImportModal from "./movie_import_modal";
 import TimeSelect from "./time_select";
 
 interface EditorPanelProps {
   data: EditorFormData;
+  documentData: DocumentData;
   onChange: (data: EditorFormData) => void;
   onReset: () => void;
   collapsed: boolean;
@@ -307,12 +311,187 @@ function MovieEditor({
   );
 }
 
+const ORDINAL = ["一", "二", "三", "四", "五"];
+
+function normalizeText(value?: string): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "—";
+}
+
+function formatDuration(value: string): string {
+  const trimmed = value.trim();
+  return trimmed ? `${trimmed}分钟` : "—";
+}
+
+function formatDocMovieDetails(movie: MovieWithSchedule): string {
+  const lines = [
+    `中文名：${normalizeText(movie.chinese)}`,
+    `外文名：${normalizeText(movie.foreign)}`,
+    `年份：${normalizeText(movie.year)}`,
+    `导演：${normalizeText(movie.director)}`,
+    `编剧：${normalizeText(movie.writer)}`,
+    `主演：${normalizeText(movie.actors)}`,
+    `类型：${normalizeText(movie.genre)}`,
+    `制片地区/国家：${normalizeText(movie.region)}`,
+    `片长：${formatDuration(movie.length)}`,
+    `豆瓣评分：${normalizeText(movie.douban)}`,
+    `剧情简介：${normalizeText(movie.desc)}`,
+    `豆瓣短评：${normalizeText(movie.short)}`,
+  ];
+  return lines.join("\n");
+}
+
+function formatReportMovieDetails(movie: MovieWithSchedule): string {
+  const awards = movie.awards.trim() ? movie.awards.trim() : "无";
+  const lines = [
+    `中文名：${normalizeText(movie.chinese)}`,
+    `外文名：${normalizeText(movie.foreign)}`,
+    `年份：${normalizeText(movie.year)}`,
+    `导演：${normalizeText(movie.director)}`,
+    `编剧：${normalizeText(movie.writer)}`,
+    `主演：${normalizeText(movie.actors)}`,
+    `类型：${normalizeText(movie.genre)}`,
+    `制片地区/国家：${normalizeText(movie.region)}`,
+    `片长：${formatDuration(movie.length)}`,
+    `豆瓣评分：${normalizeText(movie.douban)}`,
+    `剧情简介：${normalizeText(movie.desc)}`,
+    `获奖信息：${awards}`,
+    `推荐理由：${normalizeText(movie.recommendation)}`,
+    `放映风险：${normalizeText(movie.risk)}`,
+  ];
+  return lines.join("\n");
+}
+
+function buildDocExportText(data: DocumentData): string {
+  const lines: string[] = [];
+  const salonMovies = data.schedule.movies.filter((m) => m.isSalon);
+  const regularMovies = data.schedule.movies.filter((m) => !m.isSalon);
+
+  lines.push("电影周宣传资料");
+  lines.push(`周次：${normalizeText(data.info.week)}`);
+  lines.push(`主讲人/策展人：${normalizeText(data.info.speaker)}`);
+  lines.push(`主题：${normalizeText(data.info.theme)}`);
+  lines.push(`主题简介：${normalizeText(data.info.themeDesc)}`);
+  lines.push("");
+  lines.push("放映安排：");
+  data.schedule.movies.forEach((movie) => {
+    const dateLabel = formatChineseDateDisplay(movie.showDate);
+    const prefix = movie.isSalon ? "【沙龙】" : "【放映】";
+    lines.push(
+      `${prefix}${dateLabel} ${movie.startTime}-${movie.endTime}《${normalizeText(
+        movie.chinese
+      )}》`
+    );
+  });
+  lines.push("");
+  lines.push("主题介绍：");
+  lines.push(normalizeText(data.themeText));
+
+  if (salonMovies.length > 0) {
+    lines.push("");
+    lines.push("周五沙龙：");
+    salonMovies.forEach((movie, idx) => {
+      lines.push(`沙龙篇目${idx + 1}：${normalizeText(movie.chinese)}`);
+      lines.push(formatDocMovieDetails(movie));
+      lines.push("");
+    });
+    const hasQuote = data.salonQuote.trim().length > 0;
+    const hasReview = data.salonReview.some((p) => p.trim().length > 0);
+    if (hasQuote || hasReview) {
+      lines.push("沙龙引言：");
+      lines.push(normalizeText(data.salonQuote));
+      lines.push("");
+      lines.push("沙龙导赏：");
+      if (data.salonReview.length > 0) {
+        data.salonReview.forEach((para, idx) => {
+          lines.push(`${idx + 1}. ${normalizeText(para)}`);
+        });
+      } else {
+        lines.push("—");
+      }
+      lines.push("");
+    }
+  }
+
+  if (regularMovies.length > 0) {
+    lines.push("周末影院：");
+    regularMovies.forEach((movie, idx) => {
+      const weekday = isoDateToWeekday(movie.showDate) || "—";
+      const ordinal = ORDINAL[idx] ?? String(idx + 1);
+      lines.push(`放映篇目${ordinal}：${weekday}`);
+      lines.push(formatDocMovieDetails(movie));
+      lines.push("");
+    });
+  }
+
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function buildReportExportText(data: DocumentData): string {
+  const lines: string[] = [];
+  const salonMovies = data.schedule.movies.filter((m) => m.isSalon);
+  const regularMovies = data.schedule.movies.filter((m) => !m.isSalon);
+
+  lines.push("主题影展信息报备表");
+  lines.push(`学期：${normalizeText(data.semester)}`);
+  lines.push(`周次：${normalizeText(data.info.week)}`);
+  lines.push("");
+  lines.push("放映安排：");
+  data.schedule.movies.forEach((movie) => {
+    const dateLabel = formatChineseDateDisplay(movie.showDate);
+    const prefix = movie.isSalon ? "【沙龙】" : "【放映】";
+    lines.push(
+      `${prefix}${dateLabel} ${movie.startTime}-${movie.endTime}《${normalizeText(
+        movie.chinese
+      )}》`
+    );
+  });
+  lines.push("");
+  lines.push(`放映主题：${normalizeText(data.info.theme)}`);
+  lines.push("策展人信息：");
+  lines.push(`姓名：${normalizeText(data.info.speaker)}`);
+  lines.push(`学号：${normalizeText(data.info.studentId)}`);
+  lines.push(`院系专业：${normalizeText(data.info.department)}`);
+  lines.push("");
+  lines.push("放映意义：");
+  lines.push(normalizeText(data.significance));
+  lines.push("");
+  lines.push("整体放映风险评价：");
+  lines.push(normalizeText(data.overallRisk));
+
+  if (salonMovies.length > 0) {
+    lines.push("");
+    lines.push("沙龙篇目：");
+    salonMovies.forEach((movie, idx) => {
+      lines.push(`沙龙篇目${idx + 1}：`);
+      lines.push(formatReportMovieDetails(movie));
+      lines.push("");
+    });
+  }
+
+  if (regularMovies.length > 0) {
+    lines.push("放映篇目：");
+    regularMovies.forEach((movie, idx) => {
+      lines.push(`放映篇目${idx + 1}：`);
+      lines.push(formatReportMovieDetails(movie));
+      lines.push("");
+    });
+  }
+
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function buildExportText(data: DocumentData, activeTab: "doc" | "report"): string {
+  return activeTab === "report" ? buildReportExportText(data) : buildDocExportText(data);
+}
+
 /**
  * 左侧编辑面板
  * 包含所有表单字段、可折叠区块、打印按钮
  */
 export default function EditorPanel({
   data,
+  documentData,
   onChange,
   collapsed,
   onToggleCollapse,
@@ -347,6 +526,57 @@ export default function EditorPanel({
 
   const tabName = activeTab === "report" ? "报备表" : "宣传资料";
   const printLabel = `🖨️ 打印${tabName}`;
+  const exportLabel = `📝 导出文本`;
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("");
+  const exportTextAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const exportText = useMemo(
+    () => buildExportText(documentData, activeTab),
+    [documentData, activeTab]
+  );
+
+  useEffect(() => {
+    if (!exportModalOpen) return;
+    const el = exportTextAreaRef.current;
+    if (!el) return;
+    el.focus();
+    el.select();
+  }, [exportModalOpen, exportText]);
+
+  async function handleCopy() {
+    if (!exportText) return;
+    try {
+      await navigator.clipboard.writeText(exportText);
+      setCopyStatus("已复制");
+      return;
+    } catch {
+      setCopyStatus("");
+    }
+    const el = exportTextAreaRef.current;
+    if (!el) {
+      setCopyStatus("复制失败");
+      return;
+    }
+    el.focus();
+    el.select();
+    try {
+      const ok = document.execCommand("copy");
+      setCopyStatus(ok ? "已复制" : "复制失败");
+    } catch {
+      setCopyStatus("复制失败");
+    }
+  }
+
+  function handleDownload() {
+    const blob = new Blob([exportText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `800电影社_${tabName}_纯文本.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setCopyStatus("已生成TXT");
+  }
 
   return (
     <aside
@@ -374,6 +604,16 @@ export default function EditorPanel({
                 title={`打印当前预览标签页 / 导出 PDF（当前：${tabName}）`}
               >
                 {printLabel}
+              </button>
+              <button
+                className="btn-export"
+                onClick={() => {
+                  setExportModalOpen(true);
+                  setCopyStatus("");
+                }}
+                title={`导出当前预览标签页为纯文本（当前：${tabName}）`}
+              >
+                {exportLabel}
               </button>
               <button
                 className="panel-reset-btn"
@@ -567,6 +807,68 @@ export default function EditorPanel({
           </Section>
         </div>
       )}
+
+      {exportModalOpen &&
+        createPortal(
+          <div
+            className="modal-overlay"
+            onClick={() => {
+              setExportModalOpen(false);
+              setCopyStatus("");
+            }}
+          >
+            <div
+              className="modal-box export-modal"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label="导出纯文本"
+            >
+              <div className="modal-header">
+                <span className="modal-title">📝 导出纯文本</span>
+                <button
+                  className="modal-close-btn"
+                  onClick={() => {
+                    setExportModalOpen(false);
+                    setCopyStatus("");
+                  }}
+                  aria-label="关闭"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="modal-field">
+                  <label className="modal-label">可复制文本（已自动全选）</label>
+                  <textarea
+                    ref={exportTextAreaRef}
+                    className="export-textarea"
+                    value={exportText}
+                    readOnly
+                    onFocus={() => exportTextAreaRef.current?.select()}
+                  />
+                  <span className="modal-hint">
+                    支持直接复制或下载 TXT 文件
+                  </span>
+                </div>
+              </div>
+              <div className="modal-footer export-modal-footer">
+                {copyStatus ? (
+                  <span className="export-copy-status">{copyStatus}</span>
+                ) : (
+                  <span className="export-copy-status">&nbsp;</span>
+                )}
+                <button className="btn-secondary" onClick={handleDownload}>
+                  下载 TXT
+                </button>
+                <button className="btn-primary" onClick={handleCopy}>
+                  一键复制
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </aside>
   );
 }
