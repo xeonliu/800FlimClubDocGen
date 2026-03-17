@@ -467,7 +467,7 @@ async function upstreamGet(url, extraHeaders = {}) {
   const resp = await fetch(url, {
     headers: {
       "User-Agent":
-        "Mozilla/5.0 (compatible; 800FilmClubDocGen/1.0; +https://github.com/xeonliu/800FlimClubDocGen)",
+        "Mozilla/5.0 (compatible; 800FilmClubDocGen/1.0; +https://github.com/xeonliu/800FilmClubDocGen)",
       ...extraHeaders,
     },
   });

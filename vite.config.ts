@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // 部署到 GitHub Pages 时使用仓库名作为 base 路径
-  base: process.env.GITHUB_ACTIONS ? '/800FlimClubDocGen/' : '/',
+  base: process.env.GITHUB_ACTIONS ? '/800FilmClubDocGen/' : '/',
 })
